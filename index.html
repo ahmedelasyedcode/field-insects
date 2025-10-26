@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موسوعة حشرات المحاصيل الحقلية</title>
+    <!-- تحميل Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- تحميل مكتبة Lucide Icons (لإضافة الأيقونات) -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        /* تعريف خط Cairo لضمان قراءة جيدة */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        :root {
+            --primary-color: #16a34a; /* أخضر داكن */
+            --accent-color: #f59e0b;  /* برتقالي/أصفر */
+            --bg-color: #f7fdee;     /* خلفية فاتحة جداً */
+            --card-bg: #ffffff;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+        }
+        /* لإظهار الأيقونات من مكتبة Lucide */
+        .icon {
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            display: inline-block;
+        }
+        /* تنسيق خاص لبطاقات الحشرات */
+        .insect-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .insect-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* تنسيق صور البطاقات */
+        .insect-image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .insect-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* لضمان ملء الصورة للحاوية دون تشويه */
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="app" class="max-w-7xl mx-auto">
+        <!-- العنوان الرئيسي والإحصائية والبحث -->
+        <header class="text-center mb-12 p-6 bg-white shadow-xl rounded-2xl border-b-4 border-green-600">
+            <h1 class="text-4xl font-extrabold text-green-700 mb-2">موسوعة حشرات المحاصيل الحقلية</h1>
+            <p class="text-lg text-gray-600">دليل تفاعلي للتعرف على الآفات الزراعية وتصنيفها وعوائلها النباتية</p>
+            
+            <!-- إحصائية عدد الحشرات -->
+            <div class="mt-4 flex justify-center items-center">
+                <div class="bg-green-100 text-green-700 font-bold py-2 px-4 rounded-full shadow-md">
+                    <span id="insectCount"></span>
+                </div>
+            </div>
+
+            <div class="mt-6 max-w-lg mx-auto">
+                <div class="relative">
+                    <input type="text" id="searchInput" onkeyup="filterInsects()" placeholder="ابحث باسم الحشرة أو العائل النباتي..."
+                           class="w-full py-3 pr-12 pl-4 border-2 border-green-300 rounded-full focus:outline-none focus:border-green-500 transition duration-300 text-right">
+                    <span class="absolute top-1/2 left-4 transform -translate-y-1/2 text-gray-400">
+                        <i data-lucide="search" class="icon w-6 h-6"></i>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- شبكة عرض بطاقات الحشرات -->
+        <div id="insectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- سيتم إضافة البطاقات هنا بواسطة JavaScript -->
+        </div>
+
+    </div>
+
+    <script>
+        // دالة مساعدة لتحويل النصوص الطويلة إلى قائمة HTML
+        function formatHostPlants(hosts) {
+            const plants = hosts.split(/ - | -|\n/).filter(p => p.trim() !== '');
+            return `<ul class="list-disc pr-5 mt-2 space-y-1 text-sm text-gray-700 max-h-24 overflow-y-auto">
+                        ${plants.map(p => `<li class="hover:text-green-700 transition duration-150">${p.trim()}</li>`).join('')}
+                    </ul>`;
+        }
+
+        // --- البيانات المستخلصة من ملف PDF (لا يمكن التعديل عليها أو الزيادة) ---
+        const insectsData = [
+            {
+                name: "الحفار (كلب البحر)",
+                scientific: "Gryllotalpa gryllotalpa",
+                taxonomy: "Orthoptera: Gryllotalpidae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "القطن - البطاطس - البطاطا - الثمار القريبة من سطح التربه",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "bug",
+                // استخدام مسارات صور وهمية قابلة للتعديل
+                imageUrl1: "https://blogger.googleusercontent.com/img/a/AVvXsEiiSuK14q9-xrk8RBEm8L4YYpG_NqhW3b4N8Q5f2pIOl2Sgir6bkcTxuwJx2HhgA6Bvd7lLcuSRBLW298AuhPZ4f-xngshGiUITD8y6Oaxea0CvPwZMlVUuCOWeakSMs50RnMcRP-inKC2J4brAOUWTYkmREeDLy4MDc4MgpIm-ATFlWdPNXUqfh-RJmog", // أخضر فاتح
+                imageUrl2: "https://blogger.googleusercontent.com/img/a/AVvXsEg22KZxCvvtlgph5gOx1MLIVHt2Vr4vS5UEEtXgBHbyK6US8i3P1FSKRZEyODtjd7hRiX_idXNbsngIbtLI2oKYtuqjUGBMXkXIjUiwLqlDtHSfAGg4c9I8yey97kKVwgQTSjUrFug1DnyPxnB7RB-3n1mdqpL4BdOImdZMOE7jsRGSkVRu46eUUUf4PRI", // أخضر أفتح
+            },
+          {
+                name: "نطاط الارز",
+                scientific: "Aiolopus strepens",
+                taxonomy: "Orthoptera: Acrididae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "القمح - الشعير - الأرز - البرسيم - الذرة - فول الصويا",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "leaf",
+                imageUrl1: "https://blogger.googleusercontent.com/img/a/AVvXsEiT8jKEb3qBFVGS-K-P5nh2RgPX___vhBWwjBgPunS330QmKTfETk7Pm79DUxR1oqhalaSXhy6NZtjF6RBq6vitqXVb0FWLOWSpgrh89nwOSHbTaJDYL7t91yiHRoPzK7ARCOyoWbfJ0qNjbSJCG7RT876RcpqVGMWMVCJ5ZV8lW56XkIKqrZ8Ciduahtc",
+                imageUrl2: "https://blogger.googleusercontent.com/img/a/AVvXsEjzZw6bvaH8ubKCmeIH9AGBNt-bRGlAvPlyx5OZ2astRKSTLgPa4_WvCafy3rwKmOS3t396N47le5TLcxH3KVQd5Ex7Lm1ivmhjqaIokUPtSf5Lq7rnLsyTQYxhkuyCwZNUPgShz1AbF2vhSljm7zpQm3pH0QiGAFm1JVPlWPsiaKSBtOKBaUvW2oX_NQ8",
+            },
+            {
+                name: "تربس القطن",
+                scientific: "Thrips tabaci",
+                taxonomy: "Thysanoptera: Thripidae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "القطن - البصل - معظم المحاصيل الزراعية.",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "leaf",
+                imageUrl1: "https://blogger.googleusercontent.com/img/a/AVvXsEjywNbivZ3Ah6It4zR3m0JREDB6_lYhzRAi0KC-C0HH0TLVsFvp9HQyWm9ezawVqiuvoHN7Qbzx1kdRdJgtjaFLAzhURUokfXpB6ZVFPh6A_nsYFZpMk3kTYz-6gLlOcHye9J-Y8k9X3H8iK5aFjPxhFvRXcoKUVfdL912Cz8rS_PfsxMOky6nS-kxrZr4",
+                imageUrl2: "https://blogger.googleusercontent.com/img/a/AVvXsEhsRu9xUhf1vDWNk99JodA_b4U4mXpwJp-E5Fvu1IxXDJI-kPmZg7z8X9QOmAmeTyCTGJokRHwBekccPliCDPDRb5zivKCpq0WiYhPQqEjwwhBHl8qzj7TbDfo8meaHOIRDy8sRMgOBhrMEx5JfEn2JwJfqh2prZYkGf1bnZBz3vyCOHQaLdhahFNDnhec",
+            },
+            {
+                name: "من القطن",
+                scientific: "Aphis gossypii",
+                taxonomy: "Homoptera: Aphididae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "القطن محاصيل الخضر - كثير من العوائل الأخرى.",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "droplets",
+                imageUrl1: "https://blogger.googleusercontent.com/img/a/AVvXsEi9h6PuySXqUVzIfQxjXVwbmU_UDc-OT3h8dcf-caaM68kSlZCaxbwUfOk3lLtjFhehN7kbKaJ4T32clpJ1DIdAVm-Xfibil-1lsavuOGnnTd5KCu4NwFzuKvWqISuvcDLF5kcIvD3N-1ffOX8qnlM1z5GYUX9hqm9vZjRidGyrX7dQ8WlhNNNsZNsg8JE",
+                imageUrl2: "https://blogger.googleusercontent.com/img/a/AVvXsEgU_1F4Pc3r7CMLxjTSZutPQDBb3z6S1lEzgGIyZBj9FNk_QfFW0shPk3-jWXoIuTIIf-eK06rBcZstEJMkSZzsFP1_1Ed9PPyNiTpdRymzV_tOAMmMQgkneRJ8Nj8hG3S4em-MZ3XmHB3EOK4qFlWm5Mi_MDoFmfJQFOcZb4qYmA-7fvjvXlVLC02RpRU",
+            },
+            {
+                name: "الذبابة البيضاء",
+                scientific: "Bemisia tabaci",
+                taxonomy: "Homoptera: Aleyrodidae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "القطن - الطماطم - الفلفل - معظم محاصيل الخضر.",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "snowflake",
+                imageUrl1: "https://blogger.googleusercontent.com/img/a/AVvXsEh9lnIbE6or0lNCrp_tG-uqHOnORJimCUKXgzJtmTB06271ck6OOxNXbWZ3w4B7ZKzXyEzawvuyZ_yXKa4bAb4E-y8AOe176YEagAYV6dpA4mOtdv5g8FnkkWlrfBXKc_Acd8JiXFew2Q5nHXlK-uy8BCFlHfBtiTUaLTT79y-MA-uwwjUPwYsB1ay4WP8",
+                imageUrl2: "https://blogger.googleusercontent.com/img/a/AVvXsEjQWiCE8-W1gcUAzToHKecbqFEPmcmtT3waQtjV8CkfaTGhE_OZWvyJXLkg8hVcdej1xiluUXMbnwIW2tI47gRktPa0m6UKbHVgxV4hc7JiQ3EVxY2ABmhmJrHEV_V_85f7q1ogW4s1vgcaHlGTYO8o6kR_rR8mpnvhLMLc_x3pgAjcWaD6FcYkB2itNGQ",
+            },
+            {
+                name: "نطاط أوراق القطن (الجاسيد)",
+                scientific: "Empoasca lybica",
+                taxonomy: "Homoptera: Cicadellidae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "القطن - بعض المحاصيل الحقلية ومحاصيل الخضر.",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "chevrons-right",
+                imageUrl1: "https://blogger.googleusercontent.com/img/a/AVvXsEjrGq6aSkq-fprgSj38nvqtydwxMzIG7ulmu4xDp9R1SfuFxaiPwbsbyW1vRp_eosTY-G7HKnV1SB0oFrBBL2KV6omBo3Bw9l1-MKlmZNAqUBTsdJtx8AJ8PlqROYGP2oNJwR4nh6iAayXtaCDLKRXDEgGAo6P1EEXl47F7wI0fXOyzaIPAPM3TIsD8tg0",
+                imageUrl2: "https://blogger.googleusercontent.com/img/a/AVvXsEhd8iGzJzogCOhXzhIeSBSFNNWPhGExXGanlbsL-lP9Y-tnL92m35fq-q_L_L1D2sk8b4JOt-SFJWWeivMVSBqHs_zdoQ5qPhxiXIqbUazCAU2t4PnsdYLJ6htpTMepf8O3Fbx_qAniSVQo5YJSr4hr2gwOQJf1eGq0AjqkDk-tQIg6YDD0djrrBmgNbYw",
+            },
+            {
+                name: "البق الدقيقي الاسترالي",
+                scientific: "Icerya purchasi",
+                taxonomy: "Homoptera: Margarodidae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "الموالح والسنط ومحاصيل الخضر مثل القلقاس والملوخية وكثير من نباتات الزينة - القطن - بذور العائلة الخبازية.",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "cloud",
+                imageUrl1: "https://blogger.googleusercontent.com/img/a/AVvXsEivhIrQIKqbFC1thIpP5G0ntAzIk4P368k0pufYi2gFbgf5Vb4U6hbGLh_cDBMy6Bo-udgXDn7jjTvo1w6ZE7BLQJDTCzDXXhhWUfNrKzOn3AKGlP7pLhK7rEi0YzYceCsxLtQ8VlRSoss0csp7CfNpk-JgMfFgPn1axTVa39K71W2QuJX8KGTrXUuOADI",
+                imageUrl2: "https://blogger.googleusercontent.com/img/a/AVvXsEgwT7IwAIKRoA6fDfWKDb8fjCYFTxetrO8RGpyY1jGBA5_BePOzXpT0IDlUvKScR5_egwKVHJfB0wL6O1S-FPVelHWZDNnxGinMd2nfd51ISTsBlCIO-71zSsmot90IlCkMw7HXyYz37xtGJ90kTKJ4BgZ7Pi7wHshKki9ZffujZdRpU_BD_o_9Ci676Ks",
+            },
+            {
+                name: "البق الدقيقي المصري",
+                scientific: "Icerya aegyptiaca",
+                taxonomy: "Homoptera: Margarodidae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "أشجار الفيكس والمانجو والتوت والنبق والجوافة والقشطة وكثير من نباتات الزينة والقلقاس والملوخية.",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "cloud-fog",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Adult",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Nymph",
+            },
+            {
+                name: "بق الموالح الدقيق",
+                scientific: "Pseudococcus citri",
+                taxonomy: "Homoptera: Pseudococcidae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "الموالح.",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "citrus",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Adult",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Nymph",
+            },
+            {
+                name: "بق بذرة القطن",
+                scientific: "Oxycarenus hyalinipennis",
+                taxonomy: "Hemiptera: Lygaeidae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "بذور القطن - بذور العائلة الخبازية.",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "square-dot",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Adult",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Nymph",
+            },
+            {
+                name: "البقة الخضراء",
+                scientific: "Nezara viridula",
+                taxonomy: "Hemiptera: Pentatomidae",
+                development: "ناقص",
+                damagingStage: "حورية, حشرة كاملة",
+                hostPlants: "القطن والذرة الفول الباميا الكرنب الطماطم.",
+                imagePlaceholder1: "صورة الحشرة الكاملة",
+                imagePlaceholder2: "صورة الحورية أو الضرر",
+                icon: "square-dot",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Adult",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Nymph",
+            },
+            {
+                name: "دودة ورق القطن الكبرى",
+                scientific: "Spodoptera littoralis",
+                taxonomy: "Lepidoptera: Noctuidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "القطن - القمح - الذرة - البرسيم الحجازي - البرسيم المصري - محاصيل الخضر والفاكهه.",
+                imagePlaceholder1: "صورة الفراشة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "rabbit",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Moth",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "الدودة القارضة السوداء",
+                scientific: "Agrotis ipsilon",
+                taxonomy: "Lepidoptera: Noctuidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "متعددة العوائل (الطماطم - الباذنجان - الفلفل - القطن - الذرة - الأرز - البرسيم).",
+                imagePlaceholder1: "صورة الفراشة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "sword",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Moth",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "دودة اللوز الشوكية",
+                scientific: "Earias insulana",
+                taxonomy: "Lepidoptera: Noctuidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "للوز القطن - التيل - الباميا - الخطمية - الخبازي.",
+                imagePlaceholder1: "صورة الفراشة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "thorn",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Moth",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "دودة اللوز الأمريكية",
+                scientific: "Heliothis armigera",
+                taxonomy: "Lepidoptera: Noctuidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "للوز القطن - ثمار الطماطم - الفاصوليا - الكوسه - الخيار - الكرنب.",
+                imagePlaceholder1: "صورة الفراشة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "tent",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Moth",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "دودة اللوز القرنقلية",
+                scientific: "Pectinophora gossypiella",
+                taxonomy: "Lepidoptera: Gelechiidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "للوز القطن - التيل - الباميا - الخطمية - الخبازي - الكركديه.",
+                imagePlaceholder1: "صورة الفراشة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "gem",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Moth",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "دودة القصب الكبيرة",
+                scientific: "Sesamia cretica",
+                taxonomy: "Lepidoptera: Noctuidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "القصب - الذرة الشامية - الذرة العويجة - البوص البري.",
+                imagePlaceholder1: "صورة الفراشة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "mountain",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Moth",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "دودة القصب الصغيرة",
+                scientific: "Chilo Agamemnon",
+                taxonomy: "Lepidoptera: Crambidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "القصب - الذرة الشامية - الذرة العويجة - البوص البري.",
+                imagePlaceholder1: "صورة الفراشة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "tree-pine",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Moth",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "دودة الذرة الأوروبية",
+                scientific: "Ostrinia nubilalis",
+                taxonomy: "Lepidoptera: Pyraustidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "الذرة.",
+                imagePlaceholder1: "صورة الفراشة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "trello",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Moth",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "فراشة قرون السمسم",
+                scientific: "Antigastra catalaunalis",
+                taxonomy: "Lepidoptera: Pyraustidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "السمسم.",
+                imagePlaceholder1: "صورة الفراشة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "flower",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Moth",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "ذبابة البصل الكبيرة",
+                scientific: "Eumerus amoenus",
+                taxonomy: "Diptera: Syrphidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "البصل في الحقول - المخزن.",
+                imagePlaceholder1: "صورة الذبابة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "onion",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Fly",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "ذبابة البصل الصغيرة",
+                scientific: "Delia antiqua",
+                taxonomy: "Diptera: Muscidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "البصل في المشتل.",
+                imagePlaceholder1: "صورة الذبابة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "salad",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Fly",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "هاموش الأرز (الدودة الدموية)",
+                scientific: "Chironomus sp.",
+                taxonomy: "Diptera: Chironomidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "شتلات الأرز.",
+                imagePlaceholder1: "صورة الهاموش (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "shovel",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Midge",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "ذبابة أوراق البنجر",
+                scientific: "Pegomyia mixta",
+                taxonomy: "Diptera: Anthomyiidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "بنجر السكر - العائلة الرمرامية.",
+                imagePlaceholder1: "صورة الذبابة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "beet",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Fly",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "ذبابة أوراق الفول",
+                scientific: "Liriomyza congesta",
+                taxonomy: "Diptera: Agromyzidae",
+                development: "كامل",
+                damagingStage: "يرقة",
+                hostPlants: "البقوليات خاصة الفول.",
+                imagePlaceholder1: "صورة الذبابة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الطور الضار)",
+                icon: "nut",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Fly",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "سوسة ورق البرسيم",
+                scientific: "Phytonomus variabilis",
+                taxonomy: "Coleoptera: Curculionidae",
+                development: "كامل",
+                damagingStage: "يرقة, حشرة كاملة",
+                hostPlants: "البرسيم المسقاوى. الحجازي - الفول - الحلبة.",
+                imagePlaceholder1: "صورة السوسة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة أو الضرر",
+                icon: "clover",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Weevil",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "سوسة المخزن",
+                scientific: "Sitophilus granarius",
+                taxonomy: "Coleoptera: Curculionidae",
+                development: "كامل",
+                damagingStage: "يرقة, حشرة كاملة",
+                hostPlants: "الحبوب المخزونة.",
+                imagePlaceholder1: "صورة السوسة (كاملة)",
+                imagePlaceholder2: "صورة اليرقة أو الضرر",
+                icon: "wheat-off",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Weevil",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "خنفساء الفول الكبيرة",
+                scientific: "Bruchus rufimanus",
+                taxonomy: "Coleoptera: Bruchidae",
+                development: "كامل",
+                damagingStage: "يرقة, حشرة كاملة",
+                hostPlants: "الفول – اللوبيا – الفاصوليا – البسلة – العدس.",
+                imagePlaceholder1: "صورة الخنفساء (كاملة)",
+                imagePlaceholder2: "صورة اليرقة أو الضرر",
+                icon: "bean",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Beetle",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "خنفساء البنجر السلحفائية",
+                scientific: "Cassida vittata",
+                taxonomy: "Coleoptera: Chrysomelidae",
+                development: "كامل",
+                damagingStage: "يرقة, حشرة كاملة",
+                hostPlants: "بنجر السكر – بنجر العلف – بنجر المائدة – حشيشة الزربيح - العائلة الرمرامية.",
+                imagePlaceholder1: "صورة الخنفساء (كاملة)",
+                imagePlaceholder2: "صورة اليرقة أو الضرر",
+                icon: "turtle",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Beetle",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "الخنفساء المنزلية",
+                scientific: "Plaps polychresta",
+                taxonomy: "Coleoptera: Tenebrionidae",
+                development: "كامل",
+                damagingStage: "يرقة, حشرة كاملة",
+                hostPlants: "البقايا العضوية التالفة.",
+                imagePlaceholder1: "صورة الخنفساء (كاملة)",
+                imagePlaceholder2: "صورة اليرقة أو الضرر",
+                icon: "home",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Beetle",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "جعل الخوخ",
+                scientific: "Pachnoda fasciata",
+                taxonomy: "Coleoptera: Scarabaeidae",
+                development: "كامل",
+                damagingStage: "يرقة, حشرة كاملة",
+                hostPlants: "الخوخ – أزهار الورد والحناء - السمسم.",
+                imagePlaceholder1: "صورة الخنفساء (كاملة)",
+                imagePlaceholder2: "صورة اليرقة أو الضرر",
+                icon: "peach",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Beetle",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+            {
+                name: "الديدان السلكية",
+                scientific: "Agrypnus notodonta us",
+                taxonomy: "Coleoptera: Elateridae",
+                development: "كامل",
+                damagingStage: "يرقة, حشرة كاملة",
+                hostPlants: "القمح – الشعير – البرسيم – المحاصيل الدرنية مثل (البطاطس ....الخ).",
+                imagePlaceholder1: "صورة الخنفساء (كاملة)",
+                imagePlaceholder2: "صورة اليرقة (الديدان السلكية)",
+                icon: "box",
+                imageUrl1: "https://placehold.co/150x112/a7f3d0/065f46?text=Beetle",
+                imageUrl2: "https://placehold.co/150x112/d1fae5/065f46?text=Larva",
+            },
+        ];
+
+        // دالة لعرض البيانات في الشبكة
+        function displayInsects(insects) {
+            const grid = document.getElementById('insectsGrid');
+            const totalCount = insectsData.length; // الإجمالي غير المصفى
+            const currentCount = insects.length; // العدد بعد التصفية
+            
+            // تحديث الإحصائية
+            document.getElementById('insectCount').textContent = `إجمالي عدد الآفات في الموسوعة: ${totalCount} (${currentCount} نتيجة حالية)`;
+
+            grid.innerHTML = ''; // تفريغ المحتوى الحالي
+            
+            if (insects.length === 0) {
+                grid.innerHTML = '<p class="text-center text-xl text-gray-500 col-span-full mt-10">عذراً، لم يتم العثور على نتائج مطابقة.</p>';
+                return;
+            }
+
+            insects.forEach(insect => {
+                const cardHtml = `
+                    <div class="insect-card bg-white p-6 rounded-xl shadow-lg border-t-8 border-green-500 flex flex-col hover:shadow-xl">
+                        
+                        <!-- اسم الحشرة والصورة (مكان الصورة) -->
+                        <div class="flex items-start justify-between mb-4">
+                            <h2 class="text-2xl font-bold text-gray-800 flex-1 ml-4">${insect.name}</h2>
+                            <div class="w-16 h-16 flex-shrink-0 bg-green-100 rounded-full flex items-center justify-center border-2 border-green-400 text-green-600">
+                                <i data-lucide="${insect.icon}" class="icon w-8 h-8"></i>
+                            </div>
+                        </div>
+
+                        <!-- مكان الصور (مقسمة إلى مكانين) -->
+                        <div class="flex space-x-4 mb-4" dir="ltr">
+                            <!-- مكان الصورة 1 -->
+                            <div class="flex-1 h-28 bg-gray-100 rounded-lg insect-image-container">
+                                <!-- وسم الصورة الأول -->
+                                <img src="${insect.imageUrl1}" alt="${insect.imagePlaceholder1}" class="insect-image"
+                                     onerror="this.onerror=null; this.src='https://placehold.co/150x112/CCCCCC/333333?text=${encodeURIComponent(insect.imagePlaceholder1)}'">
+                            </div>
+                            <!-- مكان الصورة 2 -->
+                            <div class="flex-1 h-28 bg-gray-100 rounded-lg insect-image-container">
+                                <!-- وسم الصورة الثاني -->
+                                <img src="${insect.imageUrl2}" alt="${insect.imagePlaceholder2}" class="insect-image"
+                                     onerror="this.onerror=null; this.src='https://placehold.co/150x112/CCCCCC/333333?text=${encodeURIComponent(insect.imagePlaceholder2)}'">
+                            </div>
+                        </div>
+                        
+                        <!-- التفاصيل -->
+                        <div class="space-y-3 text-sm flex-1">
+                            <!-- التصنيف العلمي -->
+                            <div class="flex items-center text-gray-700">
+                                <i data-lucide="microscope" class="icon w-4 h-4 ml-2 text-green-600"></i>
+                                <span class="font-semibold">التصنيف العلمي:</span>
+                                <span class="mr-2 text-left">${insect.taxonomy} (<i dir="ltr" class="text-gray-900" style="color: green;">${insect.scientific}</i>)</span>
+                            </div>
+
+                            <!-- الطور الضار -->
+                            <div class="flex items-center text-gray-700">
+                                <i data-lucide="shield-alert" class="icon w-4 h-4 ml-2 text-green-600"></i>
+                                <span class="font-semibold">الطور الضار:</span>
+                                <span class="mr-2">${insect.damagingStage}</span>
+                            </div>
+
+                            <!-- نوع التطور -->
+                            <div class="flex items-center text-gray-700">
+                                <i data-lucide="${insect.development === 'كامل' ? 'circle-dot' : 'half-circle'}" class="icon w-4 h-4 ml-2 text-green-600"></i>
+                                <span class="font-semibold">نوع التطور:</span>
+                                <span class="mr-2 text-amber-600 font-medium">${insect.development}</span>
+                            </div>
+                            
+                            <!-- العوائل النباتية (قابلة للتوسيع) -->
+                            <div class="border-t pt-3 mt-3">
+                                <span class="font-bold text-green-700 block mb-1">العوائل النباتية:</span>
+                                ${formatHostPlants(insect.hostPlants)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+            // إعادة تفعيل أيقونات Lucide بعد إضافة البطاقات
+            lucide.createIcons();
+        }
+
+        // دالة البحث والتصفية
+        function filterInsects() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const filteredData = insectsData.filter(insect => {
+                const nameMatch = insect.name.toLowerCase().includes(input);
+                const hostMatch = insect.hostPlants.toLowerCase().includes(input);
+                const scientificMatch = insect.scientific.toLowerCase().includes(input);
+                return nameMatch || hostMatch || scientificMatch;
+            });
+            displayInsects(filteredData);
+        }
+
+        // عرض البيانات عند تحميل الصفحة لأول مرة
+        window.onload = function() {
+            displayInsects(insectsData);
+        }
+    </script>
+</body>
+</html>
